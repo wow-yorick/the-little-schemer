@@ -1,0 +1,31 @@
+* chapter0 前言
+
+** scheme世界的五项规则
+
+- car :: 只对非空列表有定义
+- cdr :: 只对非空列表有定义. 任何非空列表的cdr是另一个列表
+- cons :: 有两个参数. 第二个参数必须是个list, 结果也是list
+- Null :: 仅为list定义
+- eq :: 有两个参数。每一个参数都是非数值atom
+
+
+** 为了有创造力，你必须要能控制媒介
+
+没有深入理解如何"预可视化"所写的程序产生的进程就没法构造出精巧的计算机系统. 不同的媒介(语言)有各自的缺点.
+lisp 是一种自由和富有弹性的媒介。lisp是为 ~递归轮~ 和 ~符号代数~ 而构建的理论体系. 可为快速原型软件系统提供 wrap-around 支持
+lisp中 procedures(程序)是一等数据，被当做参数，返回值，存储在数据中.
+本书循序渐进包含了学习 ~构造递归~ 和 ~操作递归数据结构~ 所需要的训练和练习.
+~好的程序反映了数据的结构~
+写scheme的 ~递归程序本质上就是简单的模式匹配~
+car,cdr,cons,eq?,null?,zero?,add1,sub1,number?,and,or,quote,lambda,define,cond
+
+#+BEGIN_EXAMPLE
+(define atom?
+  (lambda (x)
+    (and (not (pair? x)) (not (null? x)))))
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+(defun atom? (x)
+    (not (listp x)))
+#+END_EXAMPLE
