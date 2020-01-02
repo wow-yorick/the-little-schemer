@@ -29,3 +29,170 @@ car,cdr,cons,eq?,null?,zero?,add1,sub1,number?,and,or,quote,lambda,define,cond
 (defun atom? (x)
     (not (listp x)))
 #+END_EXAMPLE
+
+** cdr 仅为非空列表定义. 任何非空list 的cdr都是另一个list
+
+** cons 任意s-表达式追加到列表最前头  第一个参数可以是任意s-表达式 第二个是任意列表
+
+1. 任何函数的第一个查询表达式重视null?
+2. 使用cons构建列表
+3. 当构建list表时，描述第一个典型元素，然后把它cons到自然递归中去 
+4. 递归时至少要有一个参数变化,并向终止条件方向变化。变化的参数必须有终止测试条件
+5. 当用+构建一个值时,使用0作为终止值，因为0不改变加法的值  当用x构建一个值时，使用1作为终止值，因为1不改变乘法的值 当用cons构建list表，终止条件是()
+
+
+#+begin_src scheme
+  (define lat?
+  (lambda (l) 
+      (cond
+      ((null? l) #t)
+      ((atom? (car l)) (lat? (cdr l)))
+      (else #f))))
+#+end_src
+
+#+begin_src scheme
+  (define member?
+  (lambda (a lat)
+  (cond 
+  ((null? lat) #f)
+  (else (or (eq? (car lat) a)
+            (member? a (cdr lat)))))))
+#+end_src
+
+#+begin_src scheme
+  (define rember 
+  (lambda (a lat)
+  (cond 
+  ((null? lat) '())
+  (else (cond 
+  ((eq? a (car lat)) (cdr lat))
+  (else (cons (car lat) (rember a (cdr lat)))))))))
+#+end_src
+
+#+begin_src scheme
+  (define firsts
+  (lambda (l)
+  (cond 
+  ((null? l) '())
+  (else (cons (car (car l)) (firsts (cdr l)))))))
+#+end_src
+
+#+begin_src scheme
+(define insertR
+    (lambda (new old lat)
+      (cond 
+             ((null? lat) '())
+             (else (cond
+                     ((eq? (car lat) old) (cons old (cons new (cdr lat))))
+                     (else (cons (car lat)
+                             (insertR new old (cdr lat)))))))))
+#+end_src
+
+#+begin_src scheme
+    (define insertL
+    (lambda (new old lat)
+    (cond 
+    ((null? lat) '())
+    (else (cond 
+           ((eq? (car lat) old) (cons new (cons old (cdr lat))))
+           (else (cons (car lat) (insertL new old (cdr lat))))
+    )))))
+#+end_src
+
+#+begin_src scheme
+(define subst
+ (lambda (new old lat)
+   (cond
+     ((null? lat) (quote()))
+     (else (cond
+             ((eq? old (car lat)) 
+              (cons new (cdr lat)))
+             (else (cons (car lat) 
+                         (subst new old (cdr lat)))))))))
+#+end_src
+
+#+begin_src scheme
+          (define subst2 
+          (lambda (new o1 o2 lat)
+          (cond
+        ((null? lat) '())
+      (else (cond
+      ((eq? (car lat) o1) (cons new (cdr lat)))
+    ((eq? (car lat) o2) (cons new (cdr lat)))
+  (else (cons (cdr lat)
+              (subst2 new o1 o2 (cdr lat))))
+      ))
+          )))
+
+#+end_src
+
+#+begin_src scheme
+(define multirember
+  (lambda (a lat)
+    (cond
+      (_____ _____)
+      (else
+        (cond
+          (_____ _____)
+          (_____ _____))))))
+#+end_src
+
+#+begin_src scheme
+(define (fact-let n)
+  (let loop((n1 n) (p n))           ; 1
+    (if (= n1 1)                    
+    p
+    (let ((m (- n1 1)))
+      (loop m (* p m)))
+)))      ; 2
+#+end_src
+
+#+begin_src scheme
+  (define (fact-let n)
+  (cons ((= n 1) 1)
+      (loop (- n 1) (* n (- n 1)))
+  )
+  )
+
+#+end_src
+
+#+begin_src scheme
+(define multirember
+  (lambda (a lat)
+    (cond
+      ((null? lat) '())
+      (else
+       (cond
+         ((eq? (car lat) a) (multirember a (cdr lat)))
+         (else (cons (car lat) (multirember a (cdr lat)))))))))
+#+end_src
+
+#+begin_src scheme
+    (define multiinsertL
+      (lambda (new old lat)
+        (cond
+          ((null? lat) '())
+          (else (cond
+                  ((eq? (car lat) old)
+                   (cons new (cons old
+                                   (multiinsertL new old (cdr lat)))))
+                  (else (cons (car lat)
+                              (multiinsertL new old (cdr lat)))))))))
+
+  (multiinsertL 'new 'old '(some old insert old))
+#+end_src
+
+#+begin_src scheme
+    (define multisubst
+      (lambda (new old lat)
+        (cond
+          ((null? lat) '())
+          (else (cond
+                  ((eq? (car lat) old)
+                   (cons new
+                         (multisubst new old (cdr lat))))
+                  (else (cons (car lat)
+                              (multisubst new old (cdr lat)))))))))
+
+  (multisubst 'new 'old '(good good old day day old))
+#+end_src

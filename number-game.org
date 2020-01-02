@@ -1,0 +1,128 @@
+#+begin_src scheme
+(define +
+ (lambda (n m)
+   (cond
+     ((zero? m) n)
+     (else (add1 (+ n (sub1 m)))))))
+
+#+end_src
+
+#+begin_src scheme
+(define addtup
+  (lambda (tup)
+    (cond
+      ((null? tup) 0)
+      (else
+       (+ (car tup) (addtup (cdr tup)))))))
+#+end_src
+
+#+begin_src scheme
+(define x
+  (lambda (n m)
+    (cond ((zero? m) 0)
+          (else (+ n (x n (sub1 m)))))))
+#+end_src
+
+#+begin_src scheme
+(define >
+  (lambda (n m)
+    (cond ((zero? n) #f)
+          ((zero? m) #t)
+          (else (> (sub1 n) (sub1 m))))))
+#+end_src
+
+#+begin_src scheme
+(define >
+  (lambda (n m)
+    (cond ((zero? n) #f)
+          ((zero? m) #t)
+          (else (> (sub1 n) (sub1 m))))))
+#+end_src
+
+#+begin_src scheme
+(define =
+  (lambda (n m)
+    (cond
+      ((zero? m) (zero? n))
+      ((zero? n) #f)
+      (else (= (sub1 n) (sub1 m))))))
+#+end_src
+
+#+begin_src scheme
+(define =
+(lambda (n m)
+(cond
+((> n m) #f)
+((< n m) #f)
+(else #t))))
+#+end_src
+
+#+begin_src scheme
+(define ÷
+  (lambda (n m)
+    (cond
+      ((< n m) 0)
+      (else (add1 (÷ (- n m) m))))))
+#+end_src
+
+#+begin_src scheme
+(define length
+  (lambda (lat)
+    (cond
+      ((null? lat) 0)
+      (else (add1 (length (cdr lat)))))))
+#+end_src
+
+#+begin_src scheme
+(define no-nums
+  (lambda (lat)
+    (cond
+      ((null? lat) '())
+      (else (cond
+              ((number? (car lat))
+               (no-nums (cdr lat)))
+              (else (cons (car lat) (no-nums (cdr lat)))))))))
+#+end_src
+
+#+begin_src scheme
+(define all-nums
+  (lambda (lat)
+    (cond ((null? lat) '())
+          (else (cond
+                  ((number? (car lat)) (cons (car lat) (all-nums (cdr lat))))
+                  (else (all-nums (cdr lat))))))))
+#+end_src
+
+#+begin_src scheme
+(define eqan?
+  (lambda (a1 a2)
+  (cond
+    ((and (number? a1) (number? a2)) (= a1 a2))
+    ((or (number? a1) (number? a1)) #f)
+    (else (eq? a1 a2)))))
+#+end_src
+
+#+begin_src scheme
+(define occur
+  (lambda (a lat)
+    (cond
+      ((null? lat) 0)
+      (else
+       (cond
+         ((eq? (car lat) a)
+          (add1 (occur a (cdr lat))))
+         (else (occur a (cdr lat))))))))
+#+end_src
+
+#+begin_src scheme
+(define one?
+  (lambda (n)
+    (cond
+      ((zero? n) #f)
+      (else (zero? (sub1 n))))))
+
+(define rempick
+  (lambda (n lat)
+    (cond ((one? n) (cdr lat))
+          (else (cons (car lat) (rempick (sub1 n) (cdr lat)))))))
+#+end_src
