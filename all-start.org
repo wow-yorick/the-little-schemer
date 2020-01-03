@@ -189,3 +189,35 @@
        (and (equal? (car l1) (car l2))
             (eqlist? (cdr l1) (cdr l2)))))))
 #+end_src
+
+#+begin_src scheme
+(define rember
+  (lambda (s l)
+    (cond
+      ((null? l) '())
+      ((not (list? (car l)))
+       (cond
+         ((equal? (car l) s) (cdr l))
+         (else (cons (car l) (rember s (cdr l))))))
+      (else (cond
+              ((equal? (car l) s) (cdr l))
+              (else (cons (car l) (rember s (cdr l)))))))))
+#+end_src
+
+#+begin_src scheme
+(define rember
+  (lambda (s l)
+    (cond
+      ((null? (car l)) '())
+      (else (cond
+              ((equal? (car l) s) (cdr l))
+              (else (cons (car l)
+                          (rember s (cdr l)))))))))
+#+end_src
+* 第七戒
+在相同本性的东西上递归子组成部分
+- list表
+- 算术表达式
+  
+* 第八戒
+使用辅助函数来抽象表达式
