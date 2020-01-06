@@ -1,0 +1,222 @@
+#+begin_src scheme
+      (define rember-f
+        (lambda (test? a l)
+          (cond
+            ((null? l) '())
+            (else (cond
+                    ((test? (car l) a) (cdr l))
+                    (else (cons (car l)
+                                (rember-f test? a
+                                          (cdr l)))))))))
+
+    (define rember-f
+      (lambda (test? a l)
+        (cond
+          ((null? l) '())
+          ((test? (car l) a) (cdr l))
+          (else (cons (car l) (rember-f test? a (cdr l)))))))
+
+
+  (define eq?-c
+    (lambda (a)
+      (lambda (x)
+        (eq? x a))))
+
+  (define eq?-salad (eq?-c 'salad))
+
+  (define rember-f
+    (lambda (test?)
+      (lambda (a l)
+        (cond
+          ((null? l) '())
+          ((test? (car l) a) (cdr l))
+          (else (cons (car l)
+                      ((rember-f test?) a (cdr l))))))))
+#+end_src
+
+#+begin_src scheme
+(define insertL-f
+  (lambda (test?)
+    (lambda (new old l)
+      (cond
+        ((null? l) '())
+        ((test? (car l) old)
+              (cons new
+                    (cons old (cdr l))))
+        (else (cons (car l)
+                    ((insertL-f test?) new old (cdr l))))))))
+#+end_src
+
+#+begin_src scheme
+(define insertR-f
+  (lambda (test?)
+    (lambda (new old l)
+      (cond
+        ((null? l) '())
+        ((test? (car l) old)
+         (cons old (cons new (cdr l))))
+        (else
+         (cons (car l)
+               ((insertR-f test?) new old (cdr l))))))))
+#+end_src
+
+#+begin_src scheme
+(define insertR-f
+  (lambda (test?)
+    (lambda (new old l)
+      (cond
+        ((null? l) '())
+        ((test? (car l) old)
+         (cons old (cons new (cdr l))))
+        (else
+         (cons (car l)
+               ((insertR-f test?) new old (cdr l))))))))
+
+(define seqL
+  (lambda (new old l)
+    (cons new (cons old l))))
+
+(define seqR
+  (lambda (new old l)
+    (cons old (cons new l))))
+
+(define insert-g
+  (lambda (seq)
+    (lambda (new old l)
+      (cond
+        ((null? l) '())
+        ((eq? (car l) old)
+         (seq new old (cdr l)))
+        (else (cons (car l)
+                    ((insert-g seq) new old (cdr l))))))))
+
+(define insertL (insert-g seqL))
+(define insertR (insert-g seqR))
+#+end_src
+
+#+begin_src scheme
+(define multirember&co
+  (lambda (a lat col)
+    (cond
+      ((null? lat)
+       (col '() '()))
+      ((eq? (car lat) a)
+       (multirember&co a (cdr lat)
+                       (lambda (newlat seen)
+                         (col newlat
+                              (cons (car lat) seen)))))
+      (else
+       (multirember&co a (cdr lat)
+                       (lambda (newlat seen)
+                         (col (cons (car lat) newlat) seen)))))))
+#+end_src
+
+#+begin_src scheme
+(define multirember&co
+  (lambda (a lat col)
+    (cond
+      ((null? lat)
+       (col '() '()))
+      ((eq? (car lat) a)
+       (multirember&co a (cdr lat)
+                       (lambda (newlat seen)
+                         (col newlat
+                              (cons (car lat) seen)))))
+      (else
+       (multirember&co a (cdr lat)
+                       (lambda (newlat seen)
+                         (col (cons (car lat) newlat) seen)))))))
+#+end_src
+~~~
+(multirember&co a lat f)做些什么
+
+查询lat中的每一个atom原子看和a是否eq？。不同的放在 ls1，相同的放在 ls2，最后，它确定(f ls1 ls2)的值。
+
+笔记：ls1就是那个newlat,seen就是ls2。准确的的说最后ls1是当那个(car lat)不是a时不断(cons (car lat) newlat)得到的一个表；ls2是当(car lat)是a时，不断(cons (car lat))的一个表。(f ls1 ls2)为真值表示没有把a找到并放入ls2，最后所有的原子都到了newlat中，seen一直为空；假表示ls2中找到了所有的a，它是非空了。函数 multirember&co在递归的三个分支中使用了不同的col函数去处理，最后递归的结果是把lat分成两个lat，以是否是a为条件。其中每深一次的递归 multirember&co 代入的col都是比上一层的递归多一层col。
+~~~
+
+#+begin_src scheme
+(define multiinsertLR
+  (lambda (new oldL oldR lat)
+    (cond
+      ((null? lat) '())
+      ((eq? (car lat) oldL)
+       (cons new
+             (cons oldL
+                   (multiinsertLR new oldL oldR (cdr lat)))))
+      ((eq? (car lat) oldR)
+       (cons oldR
+             (cons new
+                   (multiinsertLR new oldL oldR (cdr lat)))))
+      (else
+       (cons (car lat)
+             (multiinsertLR new oldL oldR (cdr lat)))))))
+#+end_src
+
+#+begin_src scheme
+(define multiinsertLR&co
+  (lambda (new oldL oldR lat col)
+    (cond
+      ((null? lat)
+      (col '() 0 0))
+      ((eq? (car lat) oldL)
+       (multiinsertLR&co new oldL oldR (cdr lat)
+                         (lambda (newlat L R)
+                           (col (cons new
+                                      (cons oldL newlat))
+                                (add1 L) R))))
+      ((eq? (car lat) oldR)
+       (multiinsertLR&co new oldL oldR (cdr lat)
+                         (lambda (newlat L R)
+                           (col (cons oldR (cons new newlat)) L (add1 R)))))
+      (else multiinsertLR&co new oldL oldR (cdr lat)
+            (lambda (newlat L R)
+              (col (cons (car lat) newlat) L R)))
+      )))
+#+end_src
+
+#+begin_src scheme
+(define evens-only*
+  (lambda (l)
+    (cond
+      ((null? l) '())
+      ((not (list? (car l)))
+       (cond
+         ((even? (car l))
+        (cons (car l)
+              (evens-only* (cdr l))))
+         (else (evens-only* (cdr l)))
+         ))
+      (else (cons (evens-only* (car l))
+                  (evens-only* (cdr l)))))))
+
+
+(define evens-only*&co
+  (lambda (l col)
+    (cond
+      ((null? l) (col '() 1 0))
+      ((not (list? (car l)))
+       (cond
+         ((even? (car l))
+          (evens-only*&co (cdr l)
+                          (lambda (newl p s)
+                            (col (cons (car l) newl)
+                                 (* (car l) p) s))))
+          (else (evens-only*&co (cdr l)
+                                (lambda (newl p s)
+                                  (col newl
+                                       p (+ (car l) s)))))))
+      (else (evens-only*&co (car l)
+                            (lambda (al ap as)
+                              (evens-only*&co (cdr l)
+                                              (lambda (dl dp ds)
+                                                (col (cons al dl)
+                                                     (* ap dp)
+                                                     (+ as ds))))))))))
+
+(define the-last-friend
+  (lambda (newl product sum)
+    (cons sum
+      (cons product newl))))
+#+end_src
+这个情形下，car l不是原子而是表，稍稍麻烦点，(car l)和(cdr l)需要分别递归得到两个部分的偶数乘积和奇数，最后对应相乘和相加。

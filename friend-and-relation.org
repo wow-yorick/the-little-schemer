@@ -74,3 +74,117 @@
       (else (cons (car set1)
                   (union (cdr set1) set2))))))
 #+end_src
+
+#+begin_src scheme
+(define xxx
+  (lambda (set1 set2)
+    (cond
+      ((null? set1) '())
+      ((member? (car set1) set2)
+       (xxx (cdr set1) set2))
+      (else
+       (cons (car set1)
+             (xxx (cdr set1) set2)))
+      )))
+#+end_src
+
+#+begin_src scheme
+   (define intersect
+     (lambda (set1 set2)
+       (cond
+         ((null? set1) '())
+         ((member? (car set1) set2)
+          (cons (car set1) (intersect (cdr set1) set2)))
+         (else (intersect (cdr set1) set2)))
+       ))
+
+   (define intersectall
+     (lambda (l-set)
+       (cond
+         ((null? (cdr l-set)) (car l-set))
+         (else
+          (intersect (car l-set)
+                     (intersectall (cdr l-set)))))))
+
+  (intersectall '((6 pears and) 
+  (3 peaches and 6 peepers)
+  (8 pears and 6 plums)
+  (and 6 prunes with some apples)))
+#+end_src
+
+#+begin_src scheme
+(define a-pair?
+  (lambda (x)
+    (cond
+      ((atom? x) #f)
+      ((null? x) #f)
+      ((null? (cdr x)) #f)
+      ((null? (cdr (cdr x))) #t)
+      (else #f))))
+#+end_src
+
+#+begin_src scheme
+(define first
+  (lambda (p)
+    (car p)))
+
+(define second
+  (lambda (p)
+    (car (cdr p))))
+
+(define build
+  (lambda (s1 s2)
+    (cons s1 (cons s2 '()))))
+
+(define fun?
+  (lambda (rel)
+    (set? (firsts rel))))
+
+(define revrel
+  (lambda (rel)
+    (cond
+      ((null? rel) '())
+      (else
+       (cons
+        (build
+         (second (car rel))
+         (first (car rel)))
+        (revrel (cdr rel)))))))
+
+
+(define revpair
+  (lambda (pair)
+    (build (second pair) (first pair))))
+
+(define revrel
+  (lambda (rel)
+    (cond
+      ((null? rel) '())
+      (else (cons (revpair (car rel))
+                  (revrel (cdr rel)))))))
+#+end_src
+
+#+begin_src scheme
+(define cookies
+  (lambda ()
+    (bake
+     '(350 degrees)
+     '(12 minutes)
+     (mix
+      '(walnuts 1 cup)
+      '(chocolate-chips 16 ounces)
+      (mix
+       (mix
+        '(flour 2 cups)
+        '('oatmeal 2 cups)
+        '(salt 5 teaspoon)
+        '(baking-powder 1 teaspoon)
+        '(baking-soda 1 teaspoon)
+        (mix
+         '(eggs 2 large)
+         '(vanilla 1 teaspoon)
+         (cream
+          '(butter 1 cup)
+          '(sugar 2 cups))))
+       )))))
+#+end_src
