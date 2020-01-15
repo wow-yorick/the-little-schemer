@@ -169,54 +169,59 @@
        (multiinsertLR&co new oldL oldR (cdr lat)
                          (lambda (newlat L R)
                            (col (cons oldR (cons new newlat)) L (add1 R)))))
-      (else multiinsertLR&co new oldL oldR (cdr lat)
+      (else (multiinsertLR&co new oldL oldR (cdr lat)
             (lambda (newlat L R)
-              (col (cons (car lat) newlat) L R)))
+              (col (cons (car lat) newlat) L R))))
       )))
+
+(multiinsertLR&co 'salty 'fish 'chips '(chips and fish or fish and chips) (lambda (rlat tl tr)
+                                                                            (list rlat tl tr)))
 #+end_src
 
 #+begin_src scheme
-(define evens-only*
-  (lambda (l)
-    (cond
-      ((null? l) '())
-      ((not (list? (car l)))
-       (cond
-         ((even? (car l))
-        (cons (car l)
-              (evens-only* (cdr l))))
-         (else (evens-only* (cdr l)))
-         ))
-      (else (cons (evens-only* (car l))
-                  (evens-only* (cdr l)))))))
+  (define evens-only*
+    (lambda (l)
+      (cond
+        ((null? l) '())
+        ((not (list? (car l)))
+         (cond
+           ((even? (car l))
+          (cons (car l)
+                (evens-only* (cdr l))))
+           (else (evens-only* (cdr l)))
+           ))
+        (else (cons (evens-only* (car l))
+                    (evens-only* (cdr l)))))))
 
 
-(define evens-only*&co
-  (lambda (l col)
-    (cond
-      ((null? l) (col '() 1 0))
-      ((not (list? (car l)))
-       (cond
-         ((even? (car l))
-          (evens-only*&co (cdr l)
-                          (lambda (newl p s)
-                            (col (cons (car l) newl)
-                                 (* (car l) p) s))))
-          (else (evens-only*&co (cdr l)
-                                (lambda (newl p s)
-                                  (col newl
-                                       p (+ (car l) s)))))))
-      (else (evens-only*&co (car l)
-                            (lambda (al ap as)
-                              (evens-only*&co (cdr l)
-                                              (lambda (dl dp ds)
-                                                (col (cons al dl)
-                                                     (* ap dp)
-                                                     (+ as ds))))))))))
+  (define evens-only*&co
+    (lambda (l col)
+      (cond
+        ((null? l) (col '() 1 0))
+        ((not (list? (car l)))
+         (cond
+           ((even? (car l))
+            (evens-only*&co (cdr l)
+                            (lambda (newl p s)
+                              (col (cons (car l) newl)
+                                   (* (car l) p) s))))
+            (else (evens-only*&co (cdr l)
+                                  (lambda (newl p s)
+                                    (col newl
+                                         p (+ (car l) s)))))))
+        (else (evens-only*&co (car l)
+                              (lambda (al ap as)
+                                (evens-only*&co (cdr l)
+                                                (lambda (dl dp ds)
+                                                  (col (cons al dl)
+                                                       (* ap dp)
+                                                       (+ as ds))))))))))
 
-(define the-last-friend
-  (lambda (newl product sum)
-    (cons sum
-      (cons product newl))))
+  (define the-last-friend
+    (lambda (newl product sum)
+      (cons sum
+        (cons product newl))))
+
+(evens-only*&co '((9 1 2 8) 3 10 ((9 9) 7 6) 2) the-last-friend)
 #+end_src
 这个情形下，car l不是原子而是表，稍稍麻烦点，(car l)和(cdr l)需要分别递归得到两个部分的偶数乘积和奇数，最后对应相乘和相加。
